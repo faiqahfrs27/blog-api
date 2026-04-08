@@ -32,5 +32,26 @@ export class AuthService {
     };
   };
 
+  login = async (body: User) => {
+    const user = await this.prisma.user.findUnique({
+      where: { email: body.email },
+    });
+
+    if (!user) throw new ApiError("Invalid credentials", 400);
+
+    const isPassMatch = await verify(user.password, body.password);
+
+    if (!isPassMatch) throw new ApiError("Invalid Credentials", 400);
+
+    const payLoad = { id: user.id, role: user.role };
+
+    const accessToken = jwt.sign(payLoad, process.env.JWT_SECRET!, {
+      expiresIn: "2h",
+    });
+
+    const { password, ...userWithoutPassword } = user;
+
+    return { userWithoutPassword, accessToken };
+  };
   
 }
