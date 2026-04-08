@@ -5,6 +5,9 @@ import { SampleController } from "./modules/sample/sample.controller.js";
 import { SampleRouter } from "./modules/sample/sample.router.js";
 import { SampleService } from "./modules/sample/sample.service.js";
 import { globalError, notFoundError } from "./utils/errors.js";
+import { AuthService } from "./modules/auth/auth.service.js";
+import { AuthController } from "./modules/auth/auth.controller.js";
+import { AuthRouter } from "./modules/auth/auth.router.js";
 
 export class App {
   app: Express;
@@ -24,15 +27,19 @@ export class App {
   private registerModules() {
     // services
     const sampleService = new SampleService(prisma);
+    const authService = new AuthService(prisma);
 
     // controllers
     const sampleController = new SampleController(sampleService);
+    const authController = new AuthController(authService);
 
     // routes
     const sampleRouter = new SampleRouter(sampleController);
+    const authRouter = new AuthRouter(authController);
 
     // entry point
     this.app.use("/samples", sampleRouter.getRouter());
+    this.app.use("/auth", authRouter.getRouter());
   }
 
   private errors() {
