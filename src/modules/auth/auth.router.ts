@@ -1,17 +1,31 @@
 import { Router } from "express";
 import { AuthController } from "./auth.controller.js";
+import { RegisterDTO } from "./dto/register.dto.js";
+import { ValidationMiddleware } from "../../middleware/validation.middleware.js";
+import { LoginDTO } from "./dto/login.dto.js";
 
 export class AuthRouter {
   router: Router;
 
-  constructor(private authController: AuthController) {
+  constructor(
+    private authController: AuthController,
+    private validationMiddleware: ValidationMiddleware,
+  ) {
     this.router = Router();
     this.initRoutes();
   }
 
   private initRoutes = () => {
-    this.router.post("/register", this.authController.register);
-    this.router.post("/login", this.authController.login);
+    this.router.post(
+      "/register",
+      this.validationMiddleware.validateBody(RegisterDTO),
+      this.authController.register,
+    );
+    this.router.post(
+      "/login",
+      this.validationMiddleware.validateBody(LoginDTO),
+      this.authController.login,
+    );
     this.router.post("/logout", this.authController.logout);
     this.router.post("/refresh", this.authController.refresh);
   };

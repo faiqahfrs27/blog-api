@@ -11,6 +11,8 @@ import { AuthRouter } from "./modules/auth/auth.router.js";
 import { AuthMiddleware } from "./middleware/auth.middleware.js";
 import cookieParser from "cookie-parser";
 import { corsOptions } from "./config/cors.js";
+import "reflect-metadata";
+import { ValidationMiddleware } from "./middleware/validation.middleware.js";
 
 export class App {
   app: Express;
@@ -39,10 +41,11 @@ export class App {
 
     //middlewares
     const authMiddleware = new AuthMiddleware();
+    const validationMiddleware = new ValidationMiddleware();
 
     // routes
     const sampleRouter = new SampleRouter(sampleController, authMiddleware);
-    const authRouter = new AuthRouter(authController);
+    const authRouter = new AuthRouter(authController, validationMiddleware);
 
     // entry point
     this.app.use("/samples", sampleRouter.getRouter());
