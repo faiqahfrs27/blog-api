@@ -13,6 +13,7 @@ import cookieParser from "cookie-parser";
 import { corsOptions } from "./config/cors.js";
 import "reflect-metadata";
 import { ValidationMiddleware } from "./middleware/validation.middleware.js";
+import { MailService } from "./modules/mail/mail.service.js";
 
 export class App {
   app: Express;
@@ -32,8 +33,9 @@ export class App {
 
   private registerModules() {
     // services
+    const mailService = new MailService();
     const sampleService = new SampleService(prisma);
-    const authService = new AuthService(prisma);
+    const authService = new AuthService(prisma, mailService);
 
     // controllers
     const sampleController = new SampleController(sampleService);
