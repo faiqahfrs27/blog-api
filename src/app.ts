@@ -14,6 +14,11 @@ import { corsOptions } from "./config/cors.js";
 import "reflect-metadata";
 import { ValidationMiddleware } from "./middleware/validation.middleware.js";
 import { MailService } from "./modules/mail/mail.service.js";
+import { CloudinaryService } from "./modules/cloudinary/cloudinary.service.js";
+import { BlogService } from "./modules/blog/blog.service.js";
+import { BlogController } from "./modules/blog/blog.controller.js";
+import { BlogRouter } from "./modules/blog/blog.router.js";
+import { UploadMiddleware } from "./middleware/upload.middleware.js";
 
 export class App {
   app: Express;
@@ -34,24 +39,35 @@ export class App {
   private registerModules() {
     // services
     const mailService = new MailService();
+    const cloudinaryService = new CloudinaryService();
     const sampleService = new SampleService(prisma);
     const authService = new AuthService(prisma, mailService);
+    const blogService = new BlogService(prisma, cloudinaryService);
 
     // controllers
     const sampleController = new SampleController(sampleService);
     const authController = new AuthController(authService);
+    const blogController = new BlogController(blogService);
 
     //middlewares
     const authMiddleware = new AuthMiddleware();
     const validationMiddleware = new ValidationMiddleware();
+    const uploadMiddleware = new UploadMiddleware();
 
     // routes
     const sampleRouter = new SampleRouter(sampleController, authMiddleware);
     const authRouter = new AuthRouter(authController, validationMiddleware);
+    const blogRouter = new BlogRouter(
+      blogController,
+      authMiddleware,
+      uploadMiddleware,
+      validationMiddleware,
+    );
 
     // entry point
     this.app.use("/samples", sampleRouter.getRouter());
     this.app.use("/auth", authRouter.getRouter());
+    this.app.use("/blogs", blogRouter.getRouter());
   }
 
   private errors() {
