@@ -15,5 +15,5 @@ export class CreateBlogDTO {
 
   @IsNotEmpty()
   @IsString()
- category!: string;
+  category!: string;
 }

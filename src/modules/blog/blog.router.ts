@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AuthMiddleware } from "../../middleware/auth.middleware.js";
 import { UploadMiddleware } from "../../middleware/upload.middleware.js";
 import { ValidationMiddleware } from "../../middleware/validation.middleware.js";
-import { CreateBlogDTO } from "../auth/dto/create-blog.dto.js";
+import { CreateBlogDTO } from "./dto/create-blog.dto.js";
 import { BlogController } from "./blog.controller.js";
 
 export class BlogRouter {
@@ -19,13 +19,17 @@ export class BlogRouter {
   }
 
   private initRoutes = () => {
+
+    this.router.get("/", this.blogController.getBlogs);
+    this.router.get("/:slug", this.blogController.getBlogBySlug);
+
     this.router.post(
-      "/register",
+      "/create-blog",
       this.authMiddleware.verifyToken(process.env.JWT_SECRET!),
       this.authMiddleware.verifyRole(["USER"]),
       this.uploadMiddleware
         .upload()
-        .fields([{ name: "thumbnil", maxCount: 1 }]),
+        .fields([{ name: "thumbnail", maxCount: 1 }]),
       this.validationMiddleware.validateBody(CreateBlogDTO),
       this.blogController.createBlog,
     );
