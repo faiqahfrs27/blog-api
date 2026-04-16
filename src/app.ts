@@ -56,7 +56,7 @@ export class App {
 
     // routes
     const sampleRouter = new SampleRouter(sampleController, authMiddleware);
-    const authRouter = new AuthRouter(authController, validationMiddleware);
+    const authRouter = new AuthRouter(authController, validationMiddleware, authMiddleware);
     const blogRouter = new BlogRouter(
       blogController,
       authMiddleware,
