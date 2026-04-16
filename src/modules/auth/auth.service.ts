@@ -12,6 +12,7 @@ import { MailService } from "../mail/mail.service.js";
 import { LoginDTO } from "./dto/login.dto.js";
 import { RegisterDTO } from "./dto/register.dto.js";
 import { ForgotPasswordDTO } from "./dto/forgot-password.dto.js";
+import { ResetPasswordDTO } from "./dto/reset-password.dto.js";
 
 export class AuthService {
   constructor(private prisma: PrismaClient, private mailService: MailService) {}
@@ -37,14 +38,7 @@ export class AuthService {
       },
     });
 
-    await this.mailService.sendMail({
-      to: body.email,
-      subject: "Welcome to MY App",
-      templateName: "welcome",
-      context: {
-        name: body.name,
-      }
-    })
+
 
     return {
       message: "register success",
@@ -157,4 +151,30 @@ export class AuthService {
     //5. return success
     return {message: "send email success"};
   }
+
+  resetPassword = async (body: ResetPasswordDTO, userId: number) => {
+    //1. cari data user yg mau diganti passwordnya
+    const user = await this.prisma.user.findUnique({
+      where: {id: userId},
+    });
+
+    //2. kl tidak ketemu, throw error
+    if (!user) {
+      throw new ApiError("user not found", 400)
+    };
+
+    //3. kl ketemu, hash passwordnya
+    const hashedPassword = await hash(body.password)
+
+    //4. update data uder tsb dgn password baru
+    await this.prisma.user.update ({
+      where: {id: userId},
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    //5. return success
+    return {message: "reset password sucess"}
+  };
 }
